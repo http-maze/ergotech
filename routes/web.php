@@ -75,6 +75,7 @@ Route::middleware(['auth','rol:admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::resource('evaluaciones', EvaluacionController::class);
+    Route::get('evaluaciones/{evaluacion}/pdf', [EvaluacionController::class, 'pdf'])->name('evaluaciones.pdf');    
 
 });
 
@@ -87,6 +88,7 @@ Route::middleware(['auth','rol:visitante'])->group(function () {
 
     Route::get('/evaluaciones-publicas', [EvaluacionController::class, 'index'])
         ->name('evaluaciones.publicas');
+        
 
 });
 
