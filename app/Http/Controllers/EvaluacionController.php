@@ -25,7 +25,8 @@ class EvaluacionController extends Controller
             'rulaEvaluacion',
             'owasEvaluacion',
             'nioshEvaluacion',
-            'nom036'
+            'nom036',
+            'leySilla',
         ])->latest()->get();
 
         return view('evaluaciones.index', compact('evaluaciones'));
@@ -38,7 +39,12 @@ class EvaluacionController extends Controller
         $puestos = Puesto::with('sucursal')->where('activo', 1)->get();
         $trabajadores = Trabajador::with('puesto')->where('activo', 1)->get();
 
-        return view('evaluaciones.create', compact('empresas', 'sucursales', 'puestos', 'trabajadores'));
+        return view('evaluaciones.create', compact(
+            'empresas',
+            'sucursales',
+            'puestos',
+            'trabajadores'
+        ));
     }
 
     public function seleccionarMetodo(Request $request)
@@ -58,7 +64,9 @@ class EvaluacionController extends Controller
         $metodo = Metodo::whereRaw('UPPER(nombre) = ?', [strtoupper($request->metodo)])->first();
 
         if (!$metodo) {
-            return back()->withInput()->with('error', 'El método seleccionado no existe en la base de datos.');
+            return back()
+                ->withInput()
+                ->with('error', 'El método seleccionado no existe en la base de datos.');
         }
 
         $evaluacion = Evaluacion::create([
@@ -92,8 +100,13 @@ class EvaluacionController extends Controller
             case 'NOM 036':
                 return redirect()->route('nom036.create', $evaluacion->id);
 
+            case 'LEY SILLA':
+                return redirect()->route('ley_silla.create', $evaluacion->id);
+
             default:
-                return back()->withInput()->with('error', 'Método no válido.');
+                return back()
+                    ->withInput()
+                    ->with('error', 'Método no válido.');
         }
     }
 
@@ -141,22 +154,26 @@ class EvaluacionController extends Controller
             'observaciones' => $request->observaciones,
         ]);
 
-        return redirect()->route('evaluaciones.index')
+        return redirect()
+            ->route('evaluaciones.index')
             ->with('success', 'Evaluación actualizada correctamente.');
     }
 
     public function destroy($id)
-{
-    $evaluacion = Evaluacion::findOrFail($id);
+    {
+        $evaluacion = Evaluacion::findOrFail($id);
 
-    try {
-        $evaluacion->delete();
+        try {
+            $evaluacion->delete();
 
-        return redirect()->route('evaluaciones.index')
-            ->with('success', 'Evaluación eliminada correctamente.');
-    } catch (\Exception $e) {
-        return redirect()->route('evaluaciones.index')
-            ->with('error', 'No se pudo eliminar la evaluación.');
+            return redirect()
+                ->route('evaluaciones.index')
+                ->with('success', 'Evaluación eliminada correctamente.');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('evaluaciones.index')
+                ->with('error', 'No se pudo eliminar la evaluación.');
+        }
     }
-}
 }

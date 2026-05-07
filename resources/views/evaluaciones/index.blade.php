@@ -127,11 +127,18 @@
                                                    class="inline-flex items-center justify-center w-[100px] h-[38px] bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-lg transition">
                                                     Ver
                                                 </a>
-                                            @else
-                                                <span class="inline-flex items-center justify-center w-[100px] h-[38px] bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg">
-                                                    Sin detalle
-                                                </span>
-                                            @endif
+
+                                                @elseif($metodo === 'LEY SILLA' && $evaluacion->leySilla)
+                                                    <a href="{{ route('ley_silla.show', $evaluacion->leySilla->id) }}"
+                                                       class="inline-flex items-center justify-center w-[100px] h-[38px] bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-lg transition">
+                                                        Ver
+                                                    </a>
+
+                                                @else
+                                                    <span class="inline-flex items-center justify-center w-[100px] h-[38px] bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg">
+                                                        Sin detalle
+                                                    </span>
+                                                @endif
 
                                             <a href="{{ route('evaluaciones.edit', $evaluacion->id) }}"
                                                class="inline-flex items-center justify-center w-[100px] h-[38px] bg-sky-100 hover:bg-sky-200 text-sky-700 text-sm font-semibold rounded-lg transition">
