@@ -259,21 +259,33 @@ public function store(Request $request, $evaluacion)
     }
 
     public function pdf($id)
-    {
-        $owas = OwasEvaluacion::with([
-            'evaluacion.empresa',
-            'evaluacion.sucursal',
-            'evaluacion.puesto',
-            'evaluacion.trabajador',
-            'evaluacion.usuario',
-            'detalles'
-        ])->findOrFail($id);
+{
+    $owas = OwasEvaluacion::with([
+        'evaluacion.empresa',
+        'evaluacion.sucursal',
+        'evaluacion.puesto',
+        'evaluacion.trabajador',
+        'evaluacion.usuario',
+        'detalles'
+    ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('owas.pdf', compact('owas'))
-            ->setPaper('a4', 'portrait');
+    $pdf = Pdf::loadView('owas.pdf', compact('owas'))
+        ->setPaper('a4', 'portrait');
 
-        return $pdf->download('owas_' . $owas->id . '.pdf');
-    }
+    $empresa = $owas->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_OWAS_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.pdf';
+
+    return $pdf->download($nombreArchivo);
+}
 
     private function calcularOwasDesdeFormulario(array $posturas): array
     {
@@ -565,13 +577,34 @@ public function store(Request $request, $evaluacion)
     }
 
     public function excel($id, OwasReportService $reportService)
-  {
+{
     $owas = $reportService->findOrFail((int) $id);
     $data = $reportService->build($owas);
 
+    $empresa = $owas->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_OWAS_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.xlsx';
+
     return Excel::download(
         new OwasExport($data),
-        'owas_' . $owas->id . '.xlsx'
+        $nombreArchivo
     );
-  }
+}
+
+private function limpiarNombreArchivo($texto)
+{
+    $texto = strtolower($texto);
+    $texto = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $texto);
+    $texto = preg_replace('/_+/', '_', $texto);
+
+    return trim($texto, '_');
+}
 }
