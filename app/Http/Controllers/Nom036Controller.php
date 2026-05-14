@@ -291,21 +291,33 @@ class Nom036Controller extends Controller
     }
 
     public function pdf($id)
-    {
-        $nom036 = Nom036Evaluacion::with([
-            'evaluacion.empresa',
-            'evaluacion.sucursal',
-            'evaluacion.puesto',
-            'evaluacion.trabajador',
-            'evaluacion.usuario',
-            'detalles'
-        ])->findOrFail($id);
+{
+    $nom036 = Nom036Evaluacion::with([
+        'evaluacion.empresa',
+        'evaluacion.sucursal',
+        'evaluacion.puesto',
+        'evaluacion.trabajador',
+        'evaluacion.usuario',
+        'detalles'
+    ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('nom036.pdf', compact('nom036'))
-            ->setPaper('a4', 'portrait');
+    $pdf = Pdf::loadView('nom036.pdf', compact('nom036'))
+        ->setPaper('a4', 'portrait');
 
-        return $pdf->download('nom036_' . $nom036->id . '.pdf');
-    }
+    $empresa = $nom036->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_NOM-036_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.pdf';
+
+    return $pdf->download($nombreArchivo);
+}
 
     private function clasificarNom036(int $puntaje): array
     {
@@ -364,13 +376,34 @@ class Nom036Controller extends Controller
     }
 
     public function excel($id, Nom036ReportService $reportService)
-  {
+{
     $nom036 = $reportService->findOrFail((int) $id);
     $data = $reportService->build($nom036);
 
+    $empresa = $nom036->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_NOM-036_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.xlsx';
+
     return Excel::download(
         new Nom036Export($data),
-        'nom036_' . $nom036->id . '.xlsx'
+        $nombreArchivo
     );
-  }
+}
+
+private function limpiarNombreArchivo($texto)
+{
+    $texto = strtolower($texto);
+    $texto = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $texto);
+    $texto = preg_replace('/_+/', '_', $texto);
+
+    return trim($texto, '_');
+}
 }

@@ -208,21 +208,34 @@ class NioshController extends Controller
         return view('niosh.show', compact('niosh'));
     }
 
-    public function pdf($id)
-    {
-        $niosh = NioshEvaluacion::with([
-            'evaluacion.empresa',
-            'evaluacion.sucursal',
-            'evaluacion.puesto',
-            'evaluacion.trabajador',
-            'evaluacion.usuario',
-            'detalles'
-        ])->findOrFail($id);
+   public function pdf($id)
+{
+    $niosh = NioshEvaluacion::with([
+        'evaluacion.empresa',
+        'evaluacion.sucursal',
+        'evaluacion.puesto',
+        'evaluacion.trabajador',
+        'evaluacion.usuario',
+        'detalles'
+    ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('niosh.pdf', compact('niosh'))->setPaper('a4', 'portrait');
+    $pdf = Pdf::loadView('niosh.pdf', compact('niosh'))
+        ->setPaper('a4', 'portrait');
 
-        return $pdf->download('niosh_' . $niosh->id . '.pdf');
-    }
+    $empresa = $niosh->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_NIOSH_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.pdf';
+
+    return $pdf->download($nombreArchivo);
+}
 
     private function calcularHM($H)
     {
@@ -403,9 +416,30 @@ class NioshController extends Controller
         })->values()->toArray(),
     ];
 
-    return Excel::download(
-        new NioshExport($data),
-        'niosh_' . $niosh->id . '.xlsx'
-    );
+   $empresa = $niosh->evaluacion->empresa->nombre ?? 'empresa';
+$fecha = now()->format('Y-m-d');
+$codigo = 'ERG-' . now()->format('Ymd-His');
+
+$nombreArchivo = 'reporte_' .
+    $this->limpiarNombreArchivo($empresa) .
+    '_NIOSH_' .
+    $codigo .
+    '_' .
+    $fecha .
+    '.xlsx';
+
+return Excel::download(
+    new NioshExport($data),
+    $nombreArchivo
+);
+  }
+
+  private function limpiarNombreArchivo($texto)
+{
+    $texto = strtolower($texto);
+    $texto = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $texto);
+    $texto = preg_replace('/_+/', '_', $texto);
+
+    return trim($texto, '_');
 }
 }

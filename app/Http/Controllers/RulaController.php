@@ -192,20 +192,33 @@ class RulaController extends Controller
     }
 
     public function pdf($id)
-    {
-        $rula = RulaEvaluacion::with([
-            'evaluacion.empresa',
-            'evaluacion.sucursal',
-            'evaluacion.puesto',
-            'evaluacion.trabajador',
-            'evaluacion.usuario',
-            'detalles'
-        ])->findOrFail($id);
+{
+    $rula = RulaEvaluacion::with([
+        'evaluacion.empresa',
+        'evaluacion.sucursal',
+        'evaluacion.puesto',
+        'evaluacion.trabajador',
+        'evaluacion.usuario',
+        'detalles'
+    ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('rula.pdf', compact('rula'))->setPaper('a4', 'portrait');
+    $pdf = Pdf::loadView('rula.pdf', compact('rula'))
+        ->setPaper('a4', 'portrait');
 
-        return $pdf->download('rula_' . $rula->id . '.pdf');
-    }
+    $empresa = $rula->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_RULA_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.pdf';
+
+    return $pdf->download($nombreArchivo);
+}
 
     private function calcularRulaDesdeFormulario(array $data): array
     {
@@ -439,13 +452,34 @@ class RulaController extends Controller
     }
 
     public function excel($id, RulaReportService $reportService)
- {
+{
     $rula = $reportService->findOrFail((int) $id);
     $data = $reportService->build($rula);
 
+    $empresa = $rula->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_RULA_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.xlsx';
+
     return Excel::download(
         new RulaExport($data),
-        'rula_' . $rula->id . '.xlsx'
+        $nombreArchivo
     );
-  }
+}
+
+private function limpiarNombreArchivo($texto)
+{
+    $texto = strtolower($texto);
+    $texto = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $texto);
+    $texto = preg_replace('/_+/', '_', $texto);
+
+    return trim($texto, '_');
+}
 }

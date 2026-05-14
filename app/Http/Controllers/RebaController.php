@@ -170,20 +170,33 @@ class RebaController extends Controller
     }
 
     public function pdf($id)
-    {
-        $reba = RebaEvaluacion::with([
-            'evaluacion.empresa',
-            'evaluacion.sucursal',
-            'evaluacion.puesto',
-            'evaluacion.trabajador',
-            'evaluacion.usuario',
-            'detalles'
-        ])->findOrFail($id);
+{
+    $reba = RebaEvaluacion::with([
+        'evaluacion.empresa',
+        'evaluacion.sucursal',
+        'evaluacion.puesto',
+        'evaluacion.trabajador',
+        'evaluacion.usuario',
+        'detalles'
+    ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('reba.pdf', compact('reba'))->setPaper('a4', 'portrait');
+    $pdf = Pdf::loadView('reba.pdf', compact('reba'))
+        ->setPaper('a4', 'portrait');
 
-        return $pdf->download('reba_' . $reba->id . '.pdf');
-    }
+    $empresa = $reba->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_REBA_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.pdf';
+
+    return $pdf->download($nombreArchivo);
+}
 
     private function calcularRebaOficial(
         int $cuello,
@@ -430,10 +443,31 @@ private function safeDocxText($value): string
     $reba = $reportService->findOrFail((int) $id);
     $data = $reportService->build($reba);
 
+    $empresa = $reba->evaluacion->empresa->nombre ?? 'empresa';
+    $fecha = now()->format('Y-m-d');
+    $codigo = 'ERG-' . now()->format('Ymd-His');
+
+    $nombreArchivo = 'reporte_' .
+        $this->limpiarNombreArchivo($empresa) .
+        '_REBA_' .
+        $codigo .
+        '_' .
+        $fecha .
+        '.xlsx';
+
     return Excel::download(
         new RebaExport($data),
-        'reba_' . $reba->id . '.xlsx'
+        $nombreArchivo
     );
+}
+
+private function limpiarNombreArchivo($texto)
+{
+    $texto = strtolower($texto);
+    $texto = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $texto);
+    $texto = preg_replace('/_+/', '_', $texto);
+
+    return trim($texto, '_');
 }
 
 public function word($id, RebaReportService $reportService)
