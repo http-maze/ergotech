@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\LeySillaEvaluacion;
 
 class Evaluacion extends Model
 {
@@ -86,5 +85,7 @@ class Evaluacion extends Model
     public function leySilla()
     {
         return $this->hasOne(LeySillaEvaluacion::class, 'evaluacion_id');
-    }   
+    }
+
+
 }

@@ -27,6 +27,7 @@ class EvaluacionController extends Controller
             'nioshEvaluacion',
             'nom036',
             'leySilla',
+            
         ])->latest()->get();
 
         return view('evaluaciones.index', compact('evaluaciones'));
@@ -102,6 +103,10 @@ class EvaluacionController extends Controller
 
             case 'LEY SILLA':
                 return redirect()->route('ley_silla.create', $evaluacion->id);
+            
+            case 'ERGONOMIA GENERAL':
+            case 'ERGONOMÍA GENERAL':
+             return redirect()->route('ergonomia_general.create', $evaluacion->id);
 
             default:
                 return back()
