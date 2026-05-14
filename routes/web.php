@@ -19,6 +19,7 @@ use App\Http\Controllers\OwasController;
 use App\Http\Controllers\Nom036Controller;
 use App\Http\Controllers\NioshController;
 use App\Http\Controllers\LeySillaController;
+use App\Http\Controllers\ErgonomiaGeneralController;
 use App\Http\Controllers\LogController;
 
 // =========================
@@ -63,7 +64,9 @@ Route::middleware(['auth', 'rol:admin,evaluador'])->group(function () {
     Route::post('/evaluaciones/seleccionar-metodo', [EvaluacionController::class, 'seleccionarMetodo'])
         ->name('evaluaciones.seleccionarMetodo');
 
+    // =========================
     // REBA
+    // =========================
     Route::get('/reba', [RebaController::class, 'index'])->name('reba.index');
     Route::get('/reba/create/{evaluacion}', [RebaController::class, 'create'])->name('reba.create');
     Route::post('/reba/store/{evaluacion}', [RebaController::class, 'store'])->name('reba.store');
@@ -72,7 +75,9 @@ Route::middleware(['auth', 'rol:admin,evaluador'])->group(function () {
     Route::get('/reba/{id}/word', [RebaController::class, 'word'])->name('reba.word');
     Route::get('/reba/{id}', [RebaController::class, 'show'])->name('reba.show');
 
+    // =========================
     // RULA
+    // =========================
     Route::get('/rula', [RulaController::class, 'index'])->name('rula.index');
     Route::get('/rula/create/{evaluacion}', [RulaController::class, 'create'])->name('rula.create');
     Route::post('/rula/calcular', [RulaController::class, 'calcular'])->name('rula.calcular');
@@ -81,7 +86,9 @@ Route::middleware(['auth', 'rol:admin,evaluador'])->group(function () {
     Route::get('/rula/{id}/pdf', [RulaController::class, 'pdf'])->name('rula.pdf');
     Route::get('/rula/{id}/excel', [RulaController::class, 'excel'])->name('rula.excel');
 
+    // =========================
     // OWAS
+    // =========================
     Route::get('/owas', [OwasController::class, 'index'])->name('owas.index');
     Route::get('/owas/create/{evaluacion}', [OwasController::class, 'create'])->name('owas.create');
     Route::post('/owas/store/{evaluacion}', [OwasController::class, 'store'])->name('owas.store');
@@ -89,7 +96,9 @@ Route::middleware(['auth', 'rol:admin,evaluador'])->group(function () {
     Route::get('/owas/{id}/pdf', [OwasController::class, 'pdf'])->name('owas.pdf');
     Route::get('/owas/{id}/excel', [OwasController::class, 'excel'])->name('owas.excel');
 
+    // =========================
     // NIOSH
+    // =========================
     Route::get('/niosh', [NioshController::class, 'index'])->name('niosh.index');
     Route::get('/niosh/create/{evaluacion}', [NioshController::class, 'create'])->name('niosh.create');
     Route::post('/niosh/store/{evaluacion}', [NioshController::class, 'store'])->name('niosh.store');
@@ -97,18 +106,37 @@ Route::middleware(['auth', 'rol:admin,evaluador'])->group(function () {
     Route::get('/niosh/{id}/pdf', [NioshController::class, 'pdf'])->name('niosh.pdf');
     Route::get('/niosh/{id}/excel', [NioshController::class, 'excel'])->name('niosh.excel');
 
+    // =========================
     // NOM-036
+    // =========================
     Route::get('/nom036/{evaluacion}/create', [Nom036Controller::class, 'create'])->name('nom036.create');
     Route::post('/nom036/{evaluacion}/store', [Nom036Controller::class, 'store'])->name('nom036.store');
     Route::get('/nom036/{id}', [Nom036Controller::class, 'show'])->name('nom036.show');
     Route::get('/nom036/{id}/pdf', [Nom036Controller::class, 'pdf'])->name('nom036.pdf');
     Route::get('/nom036/{id}/excel', [Nom036Controller::class, 'excel'])->name('nom036.excel');
 
+    // =========================
     // LEY SILLA
+    // =========================
     Route::get('/ley-silla/create/{evaluacion}', [LeySillaController::class, 'create'])->name('ley_silla.create');
     Route::post('/ley-silla/store/{evaluacion}', [LeySillaController::class, 'store'])->name('ley_silla.store');
     Route::get('/ley-silla/{id}', [LeySillaController::class, 'show'])->name('ley_silla.show');
     Route::get('/ley-silla/{id}/pdf', [LeySillaController::class, 'pdf'])->name('ley_silla.pdf');
+
+    // =========================
+    // ERGONOMÍA GENERAL
+    // =========================
+    Route::get('/ergonomia-general/create/{evaluacion}', [ErgonomiaGeneralController::class, 'create'])
+        ->name('ergonomia_general.create');
+
+    Route::post('/ergonomia-general/store/{evaluacion}', [ErgonomiaGeneralController::class, 'store'])
+        ->name('ergonomia_general.store');
+
+    Route::get('/ergonomia-general/{id}', [ErgonomiaGeneralController::class, 'show'])
+        ->name('ergonomia_general.show');
+
+    Route::get('/ergonomia-general/{id}/pdf', [ErgonomiaGeneralController::class, 'pdf'])
+        ->name('ergonomia_general.pdf');
 });
 
 // =========================
