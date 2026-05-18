@@ -40,6 +40,9 @@
         }
     },
     "scripts": {
+        "pre-install-cmd": [
+            "composer config platform.ext-gd 1.0.0"
+        ],
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
@@ -84,6 +87,10 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform-check": false,
+        "platform": {
+            "ext-gd": "1.0.0"
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
