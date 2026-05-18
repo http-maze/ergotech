@@ -4,9 +4,17 @@ nixPkgs = ["php82", "php82Extensions.pdo_mysql", "nodejs_22"]
 [phases.install]
 cmds = [
   "composer install --no-dev --optimize-autoloader",
-  "npm install",
+  "npm install"
+]
+
+[phases.build]
+cmds = [
+  "php artisan config:clear",
+  "php artisan cache:clear",
+  "php artisan route:clear",
+  "php artisan view:clear",
   "npm run build"
 ]
 
 [start]
-cmd = "php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
